@@ -3,22 +3,17 @@
 
 const request = require('request');
 
-// Process user input
-// The id has 4 small letters 
-const breedInput = process.argv[2];
+const fetchBreedDescription = function(breedName, callback) {
+  request.get(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {
 
-request.get(`https://api.thecatapi.com/v1/breeds/search?q=${breedInput}`, (error, response, body) => {
-  if (error) {
-    throw new Error(error);
-  }
+    // Parse string into JSON
+    const data = JSON.parse(body);
+
+    // If there's no matching breed, data will be an empty array
+    const desc = (data.length === 0) ? null : data[0].description;
   
-  // Parse string into JSON
-  const data = JSON.parse(body);
-  
-  // Returns empty array if breed not found  
-  if (data.length === 0) {
-      console.log ('Breed not found. Please try again.');
-    } else {
-      console.log(data[0].description);
-  }
-}); 
+    callback(error, desc);
+  });
+};
+
+module.exports = { fetchBreedDescription };
